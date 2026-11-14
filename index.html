@@ -6,6 +6,7 @@
     <title>Vento - Digital Menu & Management</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Font: Plus Jakarta Sans -->
@@ -65,10 +66,13 @@
         <span class="text-stone-400 font-medium">
             <i class="fa-solid fa-store text-amber-500 mr-1.5"></i> Vento Menu View
         </span>
+        <div class="flex items-center gap-2">
+        <button id="btn-language" type="button" class="bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold px-3 py-1 rounded-lg text-[11px] border border-stone-700">العربية</button>
         <button id="btn-open-admin" class="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-3 py-1 rounded-lg text-[11px] transition-all flex items-center gap-1.5 shadow-md">
             <i class="fa-solid fa-lock"></i>
             <span id="admin-btn-label">Owner Login</span>
         </button>
+        </div>
     </div>
 
     <!-- Header Section -->
@@ -101,23 +105,23 @@
             <div class="grid grid-cols-5 gap-1.5 max-w-md mx-auto">
                 <a href="#" id="btn-call" class="flex flex-col items-center justify-center p-2 rounded-xl bg-stone-800 hover:bg-stone-700/80 text-amber-500 transition-all border border-stone-700/40">
                     <i class="fa-solid fa-phone text-sm mb-1"></i>
-                    <span class="text-[9px] font-semibold text-stone-300">Call</span>
+                    <span id="action-call-label" class="text-[9px] font-semibold text-stone-300">Call</span>
                 </a>
                 <a href="#" target="_blank" id="btn-maps" class="flex flex-col items-center justify-center p-2 rounded-xl bg-stone-800 hover:bg-stone-700/80 text-amber-500 transition-all border border-stone-700/40">
                     <i class="fa-solid fa-map-location-dot text-sm mb-1"></i>
-                    <span class="text-[9px] font-semibold text-stone-300">Maps</span>
+                    <span id="action-maps-label" class="text-[9px] font-semibold text-stone-300">Maps</span>
                 </a>
                 <a href="#" target="_blank" id="btn-whatsapp" class="flex flex-col items-center justify-center p-2 rounded-xl bg-stone-800 hover:bg-stone-700/80 text-emerald-400 transition-all border border-stone-700/40">
                     <i class="fa-brands fa-whatsapp text-sm mb-1"></i>
-                    <span class="text-[9px] font-semibold text-stone-300">WhatsApp</span>
+                    <span id="action-whatsapp-label" class="text-[9px] font-semibold text-stone-300">WhatsApp</span>
                 </a>
                 <a href="#" target="_blank" id="btn-instagram" class="flex flex-col items-center justify-center p-2 rounded-xl bg-stone-800 hover:bg-stone-700/80 text-pink-400 transition-all border border-stone-700/40">
                     <i class="fa-brands fa-instagram text-sm mb-1"></i>
-                    <span class="text-[9px] font-semibold text-stone-300">Instagram</span>
+                    <span id="action-instagram-label" class="text-[9px] font-semibold text-stone-300">Instagram</span>
                 </a>
                 <button id="btn-wifi-open" class="flex flex-col items-center justify-center p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 transition-all border border-amber-500/30">
                     <i class="fa-solid fa-wifi text-sm mb-1"></i>
-                    <span class="text-[9px] font-bold text-amber-400">Wi-Fi</span>
+                    <span id="action-wifi-label" class="text-[9px] font-bold text-amber-400">Wi-Fi</span>
                 </button>
             </div>
         </div>
@@ -139,7 +143,7 @@
 
             <!-- Dietary Toggles -->
             <div class="flex items-center justify-between text-xs overflow-x-auto no-scrollbar pt-0.5 gap-2">
-                <span class="text-stone-400 font-medium whitespace-nowrap"><i class="fa-solid fa-filter text-amber-500 mr-1"></i> Diet:</span>
+                <span class="diet-label text-stone-400 font-medium whitespace-nowrap"><i class="fa-solid fa-filter text-amber-500 mr-1"></i> Diet:</span>
                 <div class="flex items-center gap-1.5">
                     <button data-diet="veg" class="diet-btn bg-stone-900 border border-stone-800 text-stone-300 px-2.5 py-1 rounded-lg hover:border-stone-700 transition-all flex items-center gap-1">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Veg
@@ -357,6 +361,10 @@
                     <label class="block text-stone-400 mb-1">Item Name *</label>
                     <input type="text" id="item-name" required placeholder="e.g. Vento Signature Espresso" class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none">
                 </div>
+                <div>
+                    <label class="block text-stone-400 mb-1">اسم الطبق بالعربية (اختياري)</label>
+                    <input type="text" id="item-name-ar" dir="rtl" placeholder="مثال: برجر فينتو" class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none">
+                </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -364,7 +372,7 @@
                         <select id="item-category" required class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none"></select>
                     </div>
                     <div>
-                        <label class="block text-stone-400 mb-1">Price ($) *</label>
+                        <label class="block text-stone-400 mb-1">Price (EGP) *</label>
                         <input type="text" id="item-price" required placeholder="12.50" class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none">
                     </div>
                 </div>
@@ -372,6 +380,10 @@
                 <div>
                     <label class="block text-stone-400 mb-1">Description</label>
                     <textarea id="item-description" rows="3" placeholder="Ingredients, taste profile..." class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-stone-400 mb-1">الوصف بالعربية (اختياري)</label>
+                    <textarea id="item-description-ar" dir="rtl" rows="3" placeholder="اكتب وصف الطبق بالعربية..." class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none"></textarea>
                 </div>
 
                 <div>
@@ -457,19 +469,17 @@
             </div>
             <div>
                 <h3 class="text-lg font-bold text-stone-100">Vento Owner Login</h3>
-                <p class="text-xs text-stone-400 mt-1">Enter your password to manage items & prices.</p>
-                <div class="mt-2 bg-amber-500/10 border border-amber-500/20 text-amber-300 p-2 rounded-xl text-[11px]">
-                    <i class="fa-solid fa-circle-info mr-1"></i> Default Password: <strong class="font-mono text-white">admin123</strong>
-                </div>
+                <p class="text-xs text-stone-400 mt-1">Sign in with your restaurant owner account.</p>
             </div>
 
             <form id="form-login" class="space-y-3">
-                <input type="password" id="login-password-input" placeholder="Password" required class="w-full bg-stone-950 border border-stone-800 rounded-xl p-3 text-sm text-stone-100 focus:border-amber-500 outline-none text-center tracking-widest">
-                <div id="login-error" class="hidden text-red-400 text-xs">Incorrect password. Please try again.</div>
-                
+                <input type="email" id="login-email-input" placeholder="Owner email address" autocomplete="email" required class="w-full bg-stone-950 border border-stone-800 rounded-xl p-3 text-sm text-stone-100 focus:border-amber-500 outline-none">
+                <input type="password" id="login-password-input" placeholder="Password (at least 8 characters)" autocomplete="current-password" required minlength="8" class="w-full bg-stone-950 border border-stone-800 rounded-xl p-3 text-sm text-stone-100 focus:border-amber-500 outline-none">
+                <div id="login-error" class="hidden text-red-400 text-xs" role="alert"></div>
                 <div class="flex gap-2">
-                    <button type="button" id="btn-cancel-login" class="w-1/2 bg-stone-800 text-stone-300 py-2.5 rounded-xl text-xs font-semibold hover:bg-stone-700">Cancel</button>
-                    <button type="submit" class="w-1/2 bg-amber-500 text-stone-950 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-400">Login</button>
+                    <button type="button" id="btn-cancel-login" class="w-1/3 bg-stone-800 text-stone-300 py-2.5 rounded-xl text-xs font-semibold hover:bg-stone-700">Cancel</button>
+                    <button type="button" id="btn-signup" class="w-1/3 bg-stone-700 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-stone-600">Create account</button>
+                    <button type="submit" class="w-1/3 bg-amber-500 text-stone-950 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-400">Login</button>
                 </div>
             </form>
         </div>
@@ -518,23 +528,22 @@
             hours: "8:00 AM - 11:00 PM",
             address: "Downtown Plaza, Ave 5th",
             logoUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=300&q=80",
-            currency: "$",
+            currency: "EGP",
             phone: "+1234567890",
             whatsapp: "1234567890",
             instagram: "https://instagram.com",
             mapsUrl: "https://maps.google.com",
             wifiSSID: "Vento_Guest",
-            wifiPass: "ventocafe",
-            password: "admin123"
+            wifiPass: "ventocafe"
         };
 
         const DEFAULT_CATEGORIES = [
-            { id: "all", name: "All Items", icon: "fa-border-all" },
-            { id: "starters", name: "Starters", icon: "fa-bowl-food" },
-            { id: "mains", name: "Mains", icon: "fa-utensils" },
-            { id: "pizza", name: "Woodfired Pizza", icon: "fa-pizza-slice" },
-            { id: "drinks", name: "Drinks & Coffee", icon: "fa-mug-hot" },
-            { id: "desserts", name: "Desserts", icon: "fa-cake-candles" }
+            { id: "all", name: "All Items", name_ar: "كل الأصناف", icon: "fa-border-all" },
+            { id: "starters", name: "Starters", name_ar: "المقبلات", icon: "fa-bowl-food" },
+            { id: "mains", name: "Mains", name_ar: "الأطباق الرئيسية", icon: "fa-utensils" },
+            { id: "pizza", name: "Woodfired Pizza", name_ar: "بيتزا", icon: "fa-pizza-slice" },
+            { id: "drinks", name: "Drinks & Coffee", name_ar: "المشروبات والقهوة", icon: "fa-mug-hot" },
+            { id: "desserts", name: "Desserts", name_ar: "الحلويات", icon: "fa-cake-candles" }
         ];
 
         const DEFAULT_ITEMS = [
@@ -658,7 +667,47 @@
         ];
 
         // Application State
+        let currentLanguage = localStorage.getItem("vento_language") || "en";
+        function displayPrice(value) {
+            const n = Number(value) || 0;
+            return currentLanguage === "ar"
+                ? `${new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(n)} ج.م`
+                : `EGP ${new Intl.NumberFormat("en-EG", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)}`;
+        }
+        function localized(value, arabicValue) {
+            return currentLanguage === "ar" && arabicValue ? arabicValue : (value || "");
+        }
+        function applyLanguage() {
+            const ar = currentLanguage === "ar";
+            document.documentElement.lang = ar ? "ar" : "en";
+            document.documentElement.dir = ar ? "rtl" : "ltr";
+            document.body.dir = ar ? "rtl" : "ltr";
+            const btn = document.getElementById("btn-language");
+            if (btn) btn.textContent = ar ? "English" : "العربية";
+            const labels = {
+                "admin-btn-label": ar ? "دخول المالك" : "Owner Login",
+                "search-input": ar ? "ابحث في قائمة الطعام..." : "Search Vento menu items..."
+            };
+            Object.entries(labels).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) { if (id === "search-input") el.placeholder = value; else el.textContent = value; }
+            });
+            const diet = document.querySelector(".diet-label");
+            if (diet) diet.innerHTML = `<i class="fa-solid fa-filter text-amber-500 mr-1"></i>${ar ? "التصنيف الغذائي:" : "Diet:"}`;
+            const actionLabels = {"action-call-label": ["Call", "اتصال"], "action-maps-label": ["Maps", "الخريطة"], "action-whatsapp-label": ["WhatsApp", "واتساب"], "action-instagram-label": ["Instagram", "إنستغرام"], "action-wifi-label": ["Wi-Fi", "واي فاي"]};
+            Object.entries(actionLabels).forEach(([id, values]) => { const el = document.getElementById(id); if (el) el.textContent = ar ? values[1] : values[0]; });
+            const emptyTitle = document.querySelector("#empty-state h3");
+            const emptyText = document.querySelector("#empty-state p");
+            const reset = document.getElementById("reset-filters");
+            if (emptyTitle) emptyTitle.textContent = ar ? "لم يتم العثور على أصناف" : "No items found";
+            if (emptyText) emptyText.textContent = ar ? "جرّب تغيير البحث أو التصنيفات الغذائية." : "Try adjusting your search query or dietary filters.";
+            if (reset) reset.textContent = ar ? "إعادة ضبط الفلاتر" : "Reset All Filters";
+            renderCategoryTabs();
+            renderMenu();
+        }
+
         let restaurantConfig = JSON.parse(localStorage.getItem("digital_menu_config")) || DEFAULT_CONFIG;
+        if (!restaurantConfig.currency || restaurantConfig.currency === "$" || restaurantConfig.currency === "USD") restaurantConfig.currency = "EGP";
         let categories = JSON.parse(localStorage.getItem("digital_menu_categories")) || DEFAULT_CATEGORIES;
         let menuItems = JSON.parse(localStorage.getItem("digital_menu_items")) || DEFAULT_ITEMS;
 
@@ -667,18 +716,148 @@
         let searchQuery = "";
         let selectedDiets = new Set();
 
+        // Supabase uses the browser-safe publishable key. Database access is protected by RLS.
+        const SUPABASE_URL = "https://iwbuodirspitpeudqzjx.supabase.co";
+        const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7xKtcOkrqC7xow9hyn53VA_BPwn0YYr";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        let currentOwner = null;
+        let currentRestaurant = null;
+        let cloudSyncTimer = null;
+        let cloudSyncRunning = false;
+
         document.addEventListener("DOMContentLoaded", () => {
             initRestaurantInfo();
             renderCategoryTabs();
             renderMenu();
             setupEventListeners();
+            applyLanguage();
             document.getElementById("current-year").textContent = new Date().getFullYear();
+            initializeSupabaseSession();
         });
 
-        function saveToStorage() {
+        async function initializeSupabaseSession() {
+            try {
+                const { data, error } = await supabaseClient.auth.getSession();
+                if (error) throw error;
+                if (data.session) {
+                    currentOwner = data.session.user;
+                    await loadOwnerRestaurantAndMenu();
+                }
+                supabaseClient.auth.onAuthStateChange((_event, session) => {
+                    currentOwner = session ? session.user : null;
+                    if (!session) {
+                        currentRestaurant = null;
+                        isAdminLoggedIn = false;
+                    }
+                });
+            } catch (error) {
+                console.error("Supabase session check failed:", error);
+                showToast("Could not check owner account. Check your internet connection.");
+            }
+        }
+
+        async function loadOwnerRestaurantAndMenu() {
+            if (!currentOwner) return;
+            const { data: restaurant, error } = await supabaseClient
+                .from("restaurants").select("*").eq("owner_id", currentOwner.id).maybeSingle();
+            if (error) throw error;
+            if (!restaurant) {
+                const safeSlug = `vento-${currentOwner.id.replace(/-/g, "").slice(0, 12)}`;
+                const { data: created, error: createError } = await supabaseClient
+                    .from("restaurants")
+                    .insert({ owner_id: currentOwner.id, name: restaurantConfig.name || "My Restaurant", slug: safeSlug, currency: "EGP", is_published: false })
+                    .select("*").single();
+                if (createError) throw createError;
+                currentRestaurant = created;
+            } else {
+                currentRestaurant = restaurant;
+                restaurantConfig.name = restaurant.name || restaurantConfig.name;
+                restaurantConfig.currency = (!restaurant.currency || restaurant.currency === "$" || restaurant.currency === "USD") ? "EGP" : restaurant.currency;
+            }
+
+            const { data: cloudCategories, error: catError } = await supabaseClient
+                .from("menu_categories").select("*").eq("restaurant_id", currentRestaurant.id).order("sort_order");
+            if (catError) throw catError;
+            const { data: cloudItems, error: itemError } = await supabaseClient
+                .from("menu_items").select("*").eq("restaurant_id", currentRestaurant.id).order("sort_order");
+            if (itemError) throw itemError;
+
+            if (cloudCategories && cloudCategories.length) {
+                categories = [{ id: "all", name: "All Items", name_ar: "كل الأصناف", icon: "fa-border-all" }, ...cloudCategories.map(c => ({
+                    id: c.id, cloud_id: c.id, name: c.name, name_ar: c.name_ar || "", icon: "fa-utensils", active: c.is_active
+                }))];
+            }
+            if (cloudItems && cloudItems.length) {
+                menuItems = cloudItems.map((item, index) => {
+                    const cat = categories.find(c => c.cloud_id === item.category_id);
+                    const tags = item.dietary_tags || [];
+                    return { id: item.id, cloud_id: item.id, category: cat ? cat.id : "", name: item.name, name_ar: item.name_ar || "",
+                        description: item.description || "", description_ar: item.description_ar || "", price: String(item.price), image: item.image_url || "",
+                        badges: [], veg: tags.includes("vegetarian"), vegan: tags.includes("vegan"),
+                        gf: tags.includes("gluten-free"), available: item.is_available !== false };
+                });
+            }
+            saveToStorage(false);
+            initRestaurantInfo(); renderCategoryTabs(); renderMenu();
+            if (isAdminLoggedIn) { renderAdminItemsList(); renderAdminCategoriesList(); }
+        }
+
+        function scheduleCloudSync() {
+            if (!currentOwner || !currentRestaurant) return;
+            clearTimeout(cloudSyncTimer);
+            cloudSyncTimer = setTimeout(() => syncMenuToCloud().catch(error => {
+                console.error("VENTO cloud sync failed:", error);
+                showToast("Cloud save failed: " + (error.message || "Please try again."));
+            }), 700);
+        }
+
+        async function syncMenuToCloud() {
+            if (!currentOwner || !currentRestaurant || cloudSyncRunning) return;
+            cloudSyncRunning = true;
+            try {
+                const { error: restaurantError } = await supabaseClient.from("restaurants").update({
+                    name: restaurantConfig.name, phone: restaurantConfig.phone || null,
+                    currency: restaurantConfig.currency || "EGP"
+                }).eq("id", currentRestaurant.id);
+                if (restaurantError) throw restaurantError;
+
+                const categoryIds = {};
+                for (let i = 0; i < categories.length; i++) {
+                    const cat = categories[i];
+                    if (cat.id === "all") continue;
+                    const row = { restaurant_id: currentRestaurant.id, name: cat.name, name_ar: cat.name_ar || null, sort_order: i, is_active: true };
+                    if (cat.cloud_id) row.id = cat.cloud_id;
+                    const { data, error } = await supabaseClient.from("menu_categories").upsert(row).select("id").single();
+                    if (error) throw error;
+                    cat.cloud_id = data.id;
+                    categoryIds[cat.id] = data.id;
+                }
+                for (let i = 0; i < menuItems.length; i++) {
+                    const item = menuItems[i];
+                    const tags = [];
+                    if (item.veg) tags.push("vegetarian");
+                    if (item.vegan) tags.push("vegan");
+                    if (item.gf) tags.push("gluten-free");
+                    const row = { restaurant_id: currentRestaurant.id, category_id: categoryIds[item.category] || null,
+                        name: item.name, name_ar: item.name_ar || null, description: item.description || null, description_ar: item.description_ar || null, price: Number(item.price) || 0,
+                        image_url: item.image || null, is_available: item.available !== false,
+                        dietary_tags: tags, sort_order: i };
+                    if (item.cloud_id) row.id = item.cloud_id;
+                    const { data, error } = await supabaseClient.from("menu_items").upsert(row).select("id").single();
+                    if (error) throw error;
+                    item.cloud_id = data.id;
+                }
+                saveToStorage(false);
+            } finally {
+                cloudSyncRunning = false;
+            }
+        }
+
+        function saveToStorage(syncCloud = true) {
             localStorage.setItem("digital_menu_config", JSON.stringify(restaurantConfig));
             localStorage.setItem("digital_menu_categories", JSON.stringify(categories));
             localStorage.setItem("digital_menu_items", JSON.stringify(menuItems));
+            if (syncCloud) scheduleCloudSync();
         }
 
         function initRestaurantInfo() {
@@ -722,7 +901,7 @@
                             : 'bg-stone-900 text-stone-400 hover:text-stone-200 hover:bg-stone-800/80'
                         }">
                     <i class="fa-solid ${cat.icon || 'fa-tag'}"></i>
-                    <span>${cat.name}</span>
+                    <span>${localized(cat.name, cat.name_ar)}</span>
                 </button>
             `).join('');
         }
@@ -762,7 +941,7 @@
                     <div class="relative flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-900 cursor-pointer" 
                          onclick="openModal(${item.id})">
                         <img src="${item.image || 'https://placehold.co/200x200/292524/f59e0b?text=Food'}" 
-                             alt="${item.name}" 
+                             alt="${localized(item.name, item.name_ar)}" 
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                              onerror="this.src='https://placehold.co/200x200/292524/f59e0b?text=Food'">
                         <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -779,11 +958,11 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-start gap-2 mb-1">
                             <h3 class="font-bold text-stone-100 text-base leading-tight truncate cursor-pointer hover:text-amber-500 transition-colors" 
-                                onclick="openModal(${item.id})">${item.name}</h3>
-                            <span class="font-extrabold text-amber-500 text-sm whitespace-nowrap">${restaurantConfig.currency}${item.price}</span>
+                                onclick="openModal(${item.id})">${localized(item.name, item.name_ar)}</h3>
+                            <span class="font-extrabold text-amber-500 text-sm whitespace-nowrap">${displayPrice(item.price)}</span>
                         </div>
 
-                        <p class="text-xs text-stone-400 line-clamp-2 leading-relaxed mb-2.5">${item.description || 'No description provided.'}</p>
+                        <p class="text-xs text-stone-400 line-clamp-2 leading-relaxed mb-2.5">${localized(item.description, item.description_ar) || (currentLanguage === "ar" ? "لا يوجد وصف متاح." : "No description provided.")}</p>
 
                         <!-- Badges -->
                         <div class="flex flex-wrap items-center gap-1.5">
@@ -812,7 +991,7 @@
                             <h4 class="font-bold text-stone-100 text-xs truncate">${item.name}</h4>
                             ${!item.available ? '<span class="text-[9px] bg-red-950 text-red-400 px-1.5 py-0.5 rounded font-bold uppercase">Off</span>' : ''}
                         </div>
-                        <p class="text-[11px] text-amber-500 font-bold">${restaurantConfig.currency}${item.price} <span class="text-stone-500 font-normal">| ${item.category}</span></p>
+                        <p class="text-[11px] text-amber-500 font-bold">${displayPrice(item.price)} <span class="text-stone-500 font-normal">| ${item.category}</span></p>
                     </div>
 
                     <div class="flex items-center gap-1.5">
@@ -890,8 +1069,10 @@
             
             populateCategorySelect(item.category);
             document.getElementById("item-name").value = item.name;
+            document.getElementById("item-name-ar").value = item.name_ar || "";
             document.getElementById("item-price").value = item.price;
             document.getElementById("item-description").value = item.description || "";
+            document.getElementById("item-description-ar").value = item.description_ar || "";
             document.getElementById("item-image").value = item.image || "";
             document.getElementById("item-badges").value = (item.badges || []).join(", ");
             document.getElementById("item-veg").checked = !!item.veg;
@@ -913,9 +1094,11 @@
             e.preventDefault();
             const idHidden = document.getElementById("item-id-hidden").value;
             const name = document.getElementById("item-name").value.trim();
+            const name_ar = document.getElementById("item-name-ar").value.trim();
             const category = document.getElementById("item-category").value;
             const price = document.getElementById("item-price").value.trim();
             const description = document.getElementById("item-description").value.trim();
+            const description_ar = document.getElementById("item-description-ar").value.trim();
             const image = document.getElementById("item-image").value.trim();
             const badgesInput = document.getElementById("item-badges").value.trim();
             const badges = badgesInput ? badgesInput.split(',').map(b => b.trim()).filter(Boolean) : [];
@@ -928,7 +1111,7 @@
             if (idHidden) {
                 menuItems = menuItems.map(item => {
                     if (item.id === parseInt(idHidden)) {
-                        return { ...item, name, category, price, description, image, badges, veg, vegan, gf, available };
+                        return { ...item, name, name_ar, category, price, description, description_ar, image, badges, veg, vegan, gf, available };
                     }
                     return item;
                 });
@@ -937,9 +1120,11 @@
                 const newItem = {
                     id: Date.now(),
                     name,
+                    name_ar,
                     category,
                     price,
                     description,
+                    description_ar,
                     image: image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
                     badges,
                     veg,
@@ -958,6 +1143,12 @@
         });
 
         function setupEventListeners() {
+            const languageButton = document.getElementById("btn-language");
+            if (languageButton) languageButton.addEventListener("click", () => {
+                currentLanguage = currentLanguage === "en" ? "ar" : "en";
+                localStorage.setItem("vento_language", currentLanguage);
+                applyLanguage();
+            });
             // Category navigation
             document.getElementById("category-bar").addEventListener("click", (e) => {
                 const btn = e.target.closest(".category-btn");
@@ -1048,20 +1239,57 @@
                 document.getElementById("login-error").classList.add("hidden");
             });
 
-            // Login submission
-            document.getElementById("form-login").addEventListener("submit", (e) => {
+            // Owner login is handled by Supabase Auth (no password stored in the HTML file).
+            document.getElementById("form-login").addEventListener("submit", async (e) => {
                 e.preventDefault();
-                const pwdInput = document.getElementById("login-password-input").value;
-                if (pwdInput === restaurantConfig.password) {
+                const email = document.getElementById("login-email-input").value.trim();
+                const password = document.getElementById("login-password-input").value;
+                const errorBox = document.getElementById("login-error");
+                errorBox.textContent = ""; errorBox.classList.add("hidden");
+                try {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    currentOwner = data.user;
+                    await loadOwnerRestaurantAndMenu();
                     isAdminLoggedIn = true;
                     document.getElementById("admin-btn-label").textContent = "Owner Panel";
                     document.getElementById("modal-login").classList.add("hidden");
                     document.getElementById("login-password-input").value = "";
-                    document.getElementById("login-error").classList.add("hidden");
+                    document.getElementById("login-email-input").value = "";
                     openAdminPanel();
-                    showToast("Logged in as Vento Owner");
-                } else {
-                    document.getElementById("login-error").classList.remove("hidden");
+                    showToast("Owner account connected");
+                } catch (error) {
+                    errorBox.textContent = error.message || "Login failed. Check your email and password.";
+                    errorBox.classList.remove("hidden");
+                }
+            });
+
+            document.getElementById("btn-signup").addEventListener("click", async () => {
+                const email = document.getElementById("login-email-input").value.trim();
+                const password = document.getElementById("login-password-input").value;
+                const errorBox = document.getElementById("login-error");
+                errorBox.textContent = ""; errorBox.classList.add("hidden");
+                if (!email || password.length < 8) {
+                    errorBox.textContent = "Enter a valid email and a password with at least 8 characters.";
+                    errorBox.classList.remove("hidden"); return;
+                }
+                try {
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
+                    if (data.session && data.user) {
+                        currentOwner = data.user;
+                        await loadOwnerRestaurantAndMenu();
+                        isAdminLoggedIn = true;
+                        document.getElementById("modal-login").classList.add("hidden");
+                        openAdminPanel();
+                        showToast("Owner account created");
+                    } else {
+                        errorBox.textContent = "Account created. Check your email and confirm your address, then log in here.";
+                        errorBox.classList.remove("hidden");
+                    }
+                } catch (error) {
+                    errorBox.textContent = error.message || "Could not create account.";
+                    errorBox.classList.remove("hidden");
                 }
             });
 
@@ -1125,7 +1353,7 @@
                 e.preventDefault();
                 const name = document.getElementById("cat-name-input").value.trim();
                 if (!name) return;
-                const id = name.toLowerCase().replace(/[^a-z0-0]/g, '-');
+                const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
                 if (categories.some(c => c.id === id)) {
                     alert("Category already exists.");
                     return;
@@ -1138,15 +1366,15 @@
                 showToast("New category added");
             });
 
-            // Update Password Form
-            document.getElementById("form-password").addEventListener("submit", (e) => {
+            // Password changes are managed securely through the owner's Supabase account, not local storage.
+            document.getElementById("form-password").addEventListener("submit", async (e) => {
                 e.preventDefault();
                 const newPwd = document.getElementById("new-password").value.trim();
-                if (!newPwd) return;
-                restaurantConfig.password = newPwd;
-                saveToStorage();
+                if (newPwd.length < 8) { showToast("Password must contain at least 8 characters"); return; }
+                const { error } = await supabaseClient.auth.updateUser({ password: newPwd });
+                if (error) { showToast(error.message); return; }
                 document.getElementById("new-password").value = "";
-                showToast("Password updated successfully");
+                showToast("Account password updated securely");
             });
 
             // Export JSON
@@ -1252,7 +1480,7 @@
 
             document.getElementById("modal-img").src = item.image || "https://placehold.co/400x300/292524/f59e0b?text=Food";
             document.getElementById("modal-title").textContent = item.name;
-            document.getElementById("modal-price").textContent = `${restaurantConfig.currency}${item.price}`;
+            document.getElementById("modal-price").textContent = `${displayPrice(item.price)}`;
             document.getElementById("modal-desc").textContent = item.description || "No description provided.";
 
             const modalBadges = document.getElementById("modal-badges");
