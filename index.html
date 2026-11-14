@@ -742,6 +742,8 @@
                 if (data.session) {
                     currentOwner = data.session.user;
                     await loadOwnerRestaurantAndMenu();
+                } else {
+                    await loadPublicMenu();
                 }
                 supabaseClient.auth.onAuthStateChange((_event, session) => {
                     currentOwner = session ? session.user : null;
@@ -753,6 +755,44 @@
             } catch (error) {
                 console.error("Supabase session check failed:", error);
                 showToast("Could not check owner account. Check your internet connection.");
+            }
+        }
+
+        async function loadPublicMenu() {
+            try {
+                const { data: restaurant, error: restaurantError } = await supabaseClient
+                    .from("restaurants").select("*").eq("is_published", true).limit(1).maybeSingle();
+                if (restaurantError) throw restaurantError;
+                if (!restaurant) return;
+
+                currentRestaurant = restaurant;
+                restaurantConfig.name = restaurant.name || restaurantConfig.name;
+                restaurantConfig.currency = restaurant.currency || "EGP";
+
+                const { data: cloudCategories, error: catError } = await supabaseClient
+                    .from("menu_categories").select("*").eq("restaurant_id", restaurant.id).order("sort_order");
+                if (catError) throw catError;
+                const { data: cloudItems, error: itemError } = await supabaseClient
+                    .from("menu_items").select("*").eq("restaurant_id", restaurant.id).order("sort_order");
+                if (itemError) throw itemError;
+
+                categories = [{ id: "all", name: "All Items", name_ar: "كل الأصناف", icon: "fa-border-all" },
+                    ...(cloudCategories || []).map(c => ({ id: c.id, cloud_id: c.id, name: c.name,
+                        name_ar: c.name_ar || "", icon: "fa-utensils", active: c.is_active }))];
+                menuItems = (cloudItems || []).map(item => {
+                    const cat = categories.find(c => c.cloud_id === item.category_id);
+                    const tags = item.dietary_tags || [];
+                    return { id: item.id, cloud_id: item.id, category: cat ? cat.id : "",
+                        name: item.name, name_ar: item.name_ar || "", description: item.description || "",
+                        description_ar: item.description_ar || "", price: String(item.price), image: item.image_url || "",
+                        badges: [], veg: tags.includes("vegetarian"), vegan: tags.includes("vegan"),
+                        gf: tags.includes("gluten-free"), available: item.is_available !== false };
+                });
+                saveToStorage(false);
+                initRestaurantInfo(); renderCategoryTabs(); renderMenu();
+            } catch (error) {
+                console.error("VENTO public menu load failed:", error);
+                showToast("Could not load the online menu. Please refresh.");
             }
         }
 
@@ -800,6 +840,10 @@
             saveToStorage(false);
             initRestaurantInfo(); renderCategoryTabs(); renderMenu();
             if (isAdminLoggedIn) { renderAdminItemsList(); renderAdminCategoriesList(); }
+            // If the owner has a local menu but the cloud tables are empty, upload it once.
+            if ((!cloudItems || cloudItems.length === 0) && menuItems.length > 0) {
+                await syncMenuToCloud();
+            }
         }
 
         function scheduleCloudSync() {
@@ -817,7 +861,7 @@
             try {
                 const { error: restaurantError } = await supabaseClient.from("restaurants").update({
                     name: restaurantConfig.name, phone: restaurantConfig.phone || null,
-                    currency: restaurantConfig.currency || "EGP"
+                    currency: restaurantConfig.currency || "EGP", is_published: true
                 }).eq("id", currentRestaurant.id);
                 if (restaurantError) throw restaurantError;
 
