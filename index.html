@@ -995,13 +995,13 @@
                     </div>
 
                     <div class="flex items-center gap-1.5">
-                        <button onclick="toggleItemAvailability(${item.id})" title="Toggle In Stock / Out of Stock" class="p-2 rounded-lg text-xs ${item.available ? 'bg-emerald-950 text-emerald-400 hover:bg-emerald-900' : 'bg-stone-800 text-stone-400 hover:text-white'}">
+                        <button onclick='toggleItemAvailability(${JSON.stringify(item.id)})' title="Toggle In Stock / Out of Stock" class="p-2 rounded-lg text-xs ${item.available ? 'bg-emerald-950 text-emerald-400 hover:bg-emerald-900' : 'bg-stone-800 text-stone-400 hover:text-white'}">
                             <i class="fa-solid ${item.available ? 'fa-eye' : 'fa-eye-slash'}"></i>
                         </button>
-                        <button onclick="openEditItemModal(${item.id})" title="Edit Item" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 p-2 rounded-lg text-xs">
+                        <button onclick='openEditItemModal(${JSON.stringify(item.id)})' title="Edit Item" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 p-2 rounded-lg text-xs">
                             <i class="fa-solid fa-pen"></i>
                         </button>
-                        <button onclick="deleteItem(${item.id})" title="Delete Item" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 p-2 rounded-lg text-xs">
+                        <button onclick='deleteItem(${JSON.stringify(item.id)})' title="Delete Item" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 p-2 rounded-lg text-xs">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
