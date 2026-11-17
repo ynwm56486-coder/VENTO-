@@ -102,7 +102,7 @@
             </div>
 
             <!-- Quick Action Links (Including Wi-Fi) -->
-            <div class="grid grid-cols-5 gap-1.5 max-w-md mx-auto">
+            <div class="grid grid-cols-6 gap-1.5 max-w-md mx-auto">
                 <a href="#" id="btn-call" class="flex flex-col items-center justify-center p-2 rounded-xl bg-stone-800 hover:bg-stone-700/80 text-amber-500 transition-all border border-stone-700/40">
                     <i class="fa-solid fa-phone text-sm mb-1"></i>
                     <span id="action-call-label" class="text-[9px] font-semibold text-stone-300">Call</span>
@@ -123,6 +123,10 @@
                     <i class="fa-solid fa-wifi text-sm mb-1"></i>
                     <span id="action-wifi-label" class="text-[9px] font-bold text-amber-400">Wi-Fi</span>
                 </button>
+                <a href="#" target="_blank" rel="noopener noreferrer" id="btn-reviews" class="flex flex-col items-center justify-center p-2 rounded-xl bg-stone-800 hover:bg-stone-700/80 text-amber-400 transition-all border border-stone-700/40">
+                    <i class="fa-solid fa-star text-sm mb-1"></i>
+                    <span id="action-reviews-label" class="text-[9px] font-semibold text-stone-300">Reviews</span>
+                </a>
             </div>
         </div>
     </header>
@@ -287,6 +291,10 @@
                             <input type="text" id="info-instagram" class="w-full bg-stone-900 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none">
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-stone-400 mb-1">Google Reviews Link</label>
+                        <input type="url" id="info-reviews" placeholder="https://maps.app.goo.gl/..." class="w-full bg-stone-900 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none">
+                    </div>
                     <button type="submit" class="w-full mt-4 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold py-2.5 rounded-xl transition-all">
                         Save Business & Wi-Fi Settings
                     </button>
@@ -387,7 +395,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-stone-400 mb-1">Image URL</label>
+                    <label class="block text-stone-400 mb-1">Food Photo</label>
+                    <input type="file" id="item-image-file" accept="image/jpeg,image/png,image/webp" class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none">
+                    <p class="text-stone-500 mt-1">Choose JPG, PNG or WebP (maximum 5 MB). The photo uploads securely to VENTO.</p>
+                    <p id="item-image-upload-status" class="text-amber-400 mt-1" aria-live="polite"></p>
+                    <label class="block text-stone-500 mt-2 mb-1">Or paste an image URL</label>
                     <input type="text" id="item-image" placeholder="https://..." class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-stone-100 focus:border-amber-500 outline-none">
                 </div>
 
@@ -533,6 +545,7 @@
             whatsapp: "1234567890",
             instagram: "https://instagram.com",
             mapsUrl: "https://maps.google.com",
+            reviewsUrl: "https://maps.app.goo.gl/Lz4U67FTmsdr3FbV7",
             wifiSSID: "Vento_Guest",
             wifiPass: "ventocafe"
         };
@@ -706,7 +719,8 @@
             renderMenu();
         }
 
-        let restaurantConfig = JSON.parse(localStorage.getItem("digital_menu_config")) || DEFAULT_CONFIG;
+        let restaurantConfig = JSON.parse(localStorage.getItem("digital_menu_config")) || { ...DEFAULT_CONFIG };
+        restaurantConfig = { ...DEFAULT_CONFIG, ...restaurantConfig };
         if (!restaurantConfig.currency || restaurantConfig.currency === "$" || restaurantConfig.currency === "USD") restaurantConfig.currency = "EGP";
         let categories = JSON.parse(localStorage.getItem("digital_menu_categories")) || DEFAULT_CATEGORIES;
         let menuItems = JSON.parse(localStorage.getItem("digital_menu_items")) || DEFAULT_ITEMS;
@@ -920,6 +934,7 @@
             document.getElementById("btn-whatsapp").href = `https://wa.me/${restaurantConfig.whatsapp}`;
             document.getElementById("btn-instagram").href = restaurantConfig.instagram;
             document.getElementById("btn-maps").href = restaurantConfig.mapsUrl;
+            document.getElementById("btn-reviews").href = restaurantConfig.reviewsUrl || DEFAULT_CONFIG.reviewsUrl;
 
             // Form inputs in Admin Panel
             document.getElementById("info-name").value = restaurantConfig.name;
@@ -931,6 +946,7 @@
             document.getElementById("info-whatsapp").value = restaurantConfig.whatsapp;
             document.getElementById("info-maps").value = restaurantConfig.mapsUrl;
             document.getElementById("info-instagram").value = restaurantConfig.instagram;
+            document.getElementById("info-reviews").value = restaurantConfig.reviewsUrl || DEFAULT_CONFIG.reviewsUrl;
             document.getElementById("info-wifi-ssid").value = restaurantConfig.wifiSSID || "Vento_Guest";
             document.getElementById("info-wifi-pass").value = restaurantConfig.wifiPass || "ventocafe";
         }
@@ -980,11 +996,10 @@
             emptyState.classList.add("hidden");
 
             container.innerHTML = filtered.map(item => `
-                <div class="glass-card rounded-2xl p-4 flex gap-4 items-center hover:border-stone-700/80 transition-all group ${!item.available ? 'opacity-60' : ''}">
+                <div role="button" tabindex="0" aria-label="${currentLanguage === "ar" ? "عرض تفاصيل " : "View details for "}${localized(item.name, item.name_ar)}" onclick="openModal('${String(item.id).replace(/'/g, "\\'")}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${String(item.id).replace(/'/g, "\\'")}')}" class="glass-card rounded-2xl p-4 flex gap-4 items-center hover:border-stone-700/80 transition-all group cursor-pointer ${!item.available ? 'opacity-60' : ''}">
                     <!-- Image -->
-                    <div class="relative flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-900 cursor-pointer" 
-                         onclick="openModal(${item.id})">
-                        <img src="${item.image || 'https://placehold.co/200x200/292524/f59e0b?text=Food'}" 
+                    <div class="relative flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-900">
+                        <img src="${item.image ? (item.image + (item.image.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(item.cloud_id || item.id)) : 'https://placehold.co/200x200/292524/f59e0b?text=Food'}" 
                              alt="${localized(item.name, item.name_ar)}" 
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                              onerror="this.src='https://placehold.co/200x200/292524/f59e0b?text=Food'">
@@ -1002,7 +1017,7 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-start gap-2 mb-1">
                             <h3 class="font-bold text-stone-100 text-base leading-tight truncate cursor-pointer hover:text-amber-500 transition-colors" 
-                                onclick="openModal(${item.id})">${localized(item.name, item.name_ar)}</h3>
+                                >${localized(item.name, item.name_ar)}</h3>
                             <span class="font-extrabold text-amber-500 text-sm whitespace-nowrap">${displayPrice(item.price)}</span>
                         </div>
 
@@ -1124,6 +1139,8 @@
             document.getElementById("item-gf").checked = !!item.gf;
             document.getElementById("item-available").checked = item.available !== false;
 
+            document.getElementById("item-image-file").value = "";
+            document.getElementById("item-image-upload-status").textContent = "";
             document.getElementById("modal-item-editor").classList.remove("hidden");
         };
 
@@ -1134,7 +1151,29 @@
             `).join('');
         }
 
-        document.getElementById("form-item-editor").addEventListener("submit", (e) => {
+        async function uploadMenuItemImage(file) {
+            if (!file) return null;
+            if (!currentOwner || !currentRestaurant) {
+                throw new Error("Please sign in to the VENTO owner account before uploading a photo.");
+            }
+            const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+            if (!allowedTypes.includes(file.type)) throw new Error("Please choose a JPG, PNG or WebP image.");
+            if (file.size > 5 * 1024 * 1024) throw new Error("The image must be 5 MB or smaller.");
+
+            const extension = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
+            const filePath = `${currentRestaurant.id}/${crypto.randomUUID()}.${extension}`;
+            const { data, error } = await supabaseClient.storage
+                .from("vento-images")
+                .upload(filePath, file, { cacheControl: "3600", upsert: false, contentType: file.type });
+            if (error) throw error;
+            const { data: publicData } = supabaseClient.storage
+                .from("vento-images")
+                .getPublicUrl(data.path);
+            if (!publicData || !publicData.publicUrl) throw new Error("The photo uploaded, but its public URL could not be created.");
+            return publicData.publicUrl;
+        }
+
+        document.getElementById("form-item-editor").addEventListener("submit", async (e) => {
             e.preventDefault();
             const idHidden = document.getElementById("item-id-hidden").value;
             const name = document.getElementById("item-name").value.trim();
@@ -1143,7 +1182,26 @@
             const price = document.getElementById("item-price").value.trim();
             const description = document.getElementById("item-description").value.trim();
             const description_ar = document.getElementById("item-description-ar").value.trim();
-            const image = document.getElementById("item-image").value.trim();
+            let image = document.getElementById("item-image").value.trim();
+            const imageFile = document.getElementById("item-image-file").files[0];
+            const uploadStatus = document.getElementById("item-image-upload-status");
+            const submitButton = e.submitter;
+            if (imageFile) {
+                try {
+                    if (uploadStatus) uploadStatus.textContent = "Uploading photo...";
+                    if (submitButton) submitButton.disabled = true;
+                    image = await uploadMenuItemImage(imageFile);
+                    document.getElementById("item-image").value = image;
+                    if (uploadStatus) uploadStatus.textContent = "Photo uploaded successfully.";
+                } catch (uploadError) {
+                    console.error("VENTO image upload failed:", uploadError);
+                    showToast(uploadError.message || "Could not upload the photo.");
+                    if (uploadStatus) uploadStatus.textContent = "Upload failed. Please try again.";
+                    if (submitButton) submitButton.disabled = false;
+                    return;
+                }
+            }
+            if (submitButton) submitButton.disabled = false;
             const badgesInput = document.getElementById("item-badges").value.trim();
             const badges = badgesInput ? badgesInput.split(',').map(b => b.trim()).filter(Boolean) : [];
             
@@ -1154,12 +1212,12 @@
 
             if (idHidden) {
                 menuItems = menuItems.map(item => {
-                    if (item.id === parseInt(idHidden)) {
+                    if (String(item.id) === String(idHidden) || String(item.cloud_id || "") === String(idHidden)) {
                         return { ...item, name, name_ar, category, price, description, description_ar, image, badges, veg, vegan, gf, available };
                     }
                     return item;
                 });
-                showToast("Item updated successfully");
+                // Show success only after the cloud confirms the update.
             } else {
                 const newItem = {
                     id: Date.now(),
@@ -1177,10 +1235,26 @@
                     available
                 };
                 menuItems.push(newItem);
-                showToast("New item added to menu");
+                // Show success only after the cloud confirms the insert.
             }
 
-            saveToStorage();
+            saveToStorage(false);
+            renderAdminItemsList();
+            renderMenu();
+            if (currentOwner && currentRestaurant) {
+                try {
+                    clearTimeout(cloudSyncTimer);
+                    await syncMenuToCloud();
+                    showToast(idHidden ? "Item and photo updated successfully" : "New item saved successfully");
+                } catch (cloudError) {
+                    console.error("VENTO item cloud save failed:", cloudError);
+                    showToast("Cloud save failed: " + (cloudError.message || "Please try again."));
+                    if (submitButton) submitButton.disabled = false;
+                    return;
+                }
+            } else {
+                showToast(idHidden ? "Item updated on this device" : "New item added on this device");
+            }
             renderAdminItemsList();
             renderMenu();
             document.getElementById("modal-item-editor").classList.add("hidden");
@@ -1384,6 +1458,7 @@
                 restaurantConfig.whatsapp = document.getElementById("info-whatsapp").value.trim();
                 restaurantConfig.mapsUrl = document.getElementById("info-maps").value.trim();
                 restaurantConfig.instagram = document.getElementById("info-instagram").value.trim();
+                restaurantConfig.reviewsUrl = document.getElementById("info-reviews").value.trim() || DEFAULT_CONFIG.reviewsUrl;
                 restaurantConfig.wifiSSID = document.getElementById("info-wifi-ssid").value.trim();
                 restaurantConfig.wifiPass = document.getElementById("info-wifi-pass").value.trim();
 
